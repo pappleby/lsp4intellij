@@ -115,10 +115,6 @@ public class DefaultRequestManager implements RequestManager {
         client.publishDiagnostics(publishDiagnosticsParams);
     }
 
-    @Override
-    public void semanticHighlighting(SemanticHighlightingParams params) {
-        client.semanticHighlighting(params);
-    }
 
     // Server
 
@@ -225,7 +221,7 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
         if (checkStatus()) {
             try {
-                return serverCapabilities.getWorkspaceSymbolProvider() ? workspaceService.symbol(params) : null;
+                return serverCapabilities.getWorkspaceSymbolProvider().isRight() ? workspaceService.symbol(params) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;
@@ -363,8 +359,8 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<Hover> hover(HoverParams params) {
         if (checkStatus()) {
             try {
-                return (
-                    Optional.ofNullable(serverCapabilities.getHoverProvider()).orElse(false)) ?
+                return
+                    serverCapabilities.getHoverProvider().isRight() ?
                         textDocumentService.hover(params) : null;
                
             } catch (Exception e) {
@@ -397,7 +393,7 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         if (checkStatus()) {
             try {
-                return (serverCapabilities.getReferencesProvider()) ? textDocumentService.references(params) : null;
+                return (serverCapabilities.getReferencesProvider()).isRight() ? textDocumentService.references(params) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;
@@ -415,7 +411,7 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
         if (checkStatus()) {
             try {
-                return (serverCapabilities.getDocumentHighlightProvider()) ? textDocumentService.documentHighlight(params) : null;
+                return (serverCapabilities.getDocumentHighlightProvider()).isRight() ? textDocumentService.documentHighlight(params) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;
@@ -428,7 +424,7 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(DocumentSymbolParams params) {
         if (checkStatus()) {
             try {
-                return (serverCapabilities.getDocumentSymbolProvider()) ? textDocumentService.documentSymbol(params) : null;
+                return (serverCapabilities.getDocumentSymbolProvider()).isRight() ? textDocumentService.documentSymbol(params) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;
@@ -441,7 +437,7 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         if (checkStatus()) {
             try {
-                return (serverCapabilities.getDocumentFormattingProvider()) ? textDocumentService.formatting(params) : null;
+                return (serverCapabilities.getDocumentFormattingProvider()).isRight() ? textDocumentService.formatting(params) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;
@@ -487,7 +483,7 @@ public class DefaultRequestManager implements RequestManager {
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(DefinitionParams params) {
         if (checkStatus()) {
             try {
-                return (serverCapabilities.getDefinitionProvider()) ? textDocumentService.definition(params) : null;
+                return (serverCapabilities.getDefinitionProvider()).isRight() ? textDocumentService.definition(params) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;
@@ -527,7 +523,7 @@ public class DefaultRequestManager implements RequestManager {
         if (checkStatus()) {
             try {
                 return (serverCapabilities.getCodeLensProvider() != null && serverCapabilities.getCodeLensProvider()
-                        .isResolveProvider()) ? textDocumentService.resolveCodeLens(unresolved) : null;
+                        .getResolveProvider()) ? textDocumentService.resolveCodeLens(unresolved) : null;
             } catch (Exception e) {
                 crashed(e);
                 return null;

@@ -63,41 +63,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.ui.Hint;
 import com.intellij.util.SmartList;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionContext;
-import org.eclipse.lsp4j.CodeActionParams;
-import org.eclipse.lsp4j.Command;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.CompletionList;
-import org.eclipse.lsp4j.CompletionParams;
-import org.eclipse.lsp4j.DefinitionParams;
-import org.eclipse.lsp4j.Diagnostic;
-import org.eclipse.lsp4j.DidSaveTextDocumentParams;
-import org.eclipse.lsp4j.DocumentFormattingParams;
-import org.eclipse.lsp4j.DocumentRangeFormattingParams;
-import org.eclipse.lsp4j.ExecuteCommandParams;
-import org.eclipse.lsp4j.FormattingOptions;
-import org.eclipse.lsp4j.Hover;
-import org.eclipse.lsp4j.HoverParams;
-import org.eclipse.lsp4j.InsertTextFormat;
-import org.eclipse.lsp4j.Location;
-import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.ReferenceContext;
-import org.eclipse.lsp4j.ReferenceParams;
-import org.eclipse.lsp4j.RenameParams;
-import org.eclipse.lsp4j.SignatureHelp;
-import org.eclipse.lsp4j.SignatureHelpParams;
-import org.eclipse.lsp4j.SignatureInformation;
-import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.eclipse.lsp4j.TextDocumentSaveReason;
-import org.eclipse.lsp4j.TextDocumentSyncKind;
-import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.WillSaveTextDocumentParams;
-import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.*;
 import org.eclipse.lsp4j.jsonrpc.JsonRpcException;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
@@ -889,7 +855,7 @@ public class EditorEventManager {
         String insertText = item.getInsertText();
         CompletionItemKind kind = item.getKind();
         String label = item.getLabel();
-        TextEdit textEdit = item.getTextEdit();
+        Either<TextEdit, InsertReplaceEdit> textEdit = item.getTextEdit();
         List<TextEdit> addTextEdits = item.getAdditionalTextEdits();
         String presentableText = StringUtils.isNotEmpty(label) ? label : (insertText != null) ? insertText : "";
         String tailText = (detail != null) ? detail : "";
@@ -899,7 +865,7 @@ public class EditorEventManager {
 
         String lookupString = null;
         if (textEdit != null) {
-            lookupString = textEdit.getNewText();
+            lookupString = textEdit.getLeft().getNewText();
         } else if (StringUtils.isNotEmpty(insertText)) {
             lookupString = insertText;
         } else if (StringUtils.isNotEmpty(label)) {
@@ -990,9 +956,9 @@ public class EditorEventManager {
             });
             context.commitDocument();
 
-            item.getTextEdit().setNewText(getLookupStringWithoutPlaceholders(item, lookupString));
+            item.getTextEdit().getLeft().setNewText(getLookupStringWithoutPlaceholders(item, lookupString));
 
-            applyEdit(Integer.MAX_VALUE, Collections.singletonList(item.getTextEdit()), "text edit", false, true);
+            applyEdit(Integer.MAX_VALUE, item.getTextEdit().isLeft()? Collections.singletonList(item.getTextEdit().getLeft()) : Collections.EMPTY_LIST, "text edit", false, true);
         } else {
             // client handles insertion, determine a prefix (to allow completions of partially matching items)
             int prefixLength = getCompletionPrefixLength(context.getStartOffset());

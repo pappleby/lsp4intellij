@@ -55,8 +55,7 @@ public interface RequestManager extends LanguageClient, TextDocumentService, Wor
     @Override
     void publishDiagnostics(PublishDiagnosticsParams publishDiagnosticsParams);
 
-    @Override
-    void semanticHighlighting(SemanticHighlightingParams params);
+
 
     //--------------------------------------Client2Server-------------------------------------------------------------//
 

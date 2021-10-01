@@ -20,7 +20,7 @@ import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.DocumentOnTypeFormattingOptions;
 import org.eclipse.lsp4j.ExecuteCommandOptions;
-import org.eclipse.lsp4j.SemanticHighlightingServerCapabilities;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
@@ -41,6 +41,7 @@ public class ServerOptions {
     public DocumentLinkOptions documentLinkOptions;
     public ExecuteCommandOptions executeCommandOptions;
 
+
     public ServerOptions(ServerCapabilities serverCapabilities) {
 
         this.capabilities = serverCapabilities;
@@ -57,5 +58,6 @@ public class ServerOptions {
         this.documentOnTypeFormattingOptions = capabilities.getDocumentOnTypeFormattingProvider();
         this.documentLinkOptions = capabilities.getDocumentLinkProvider();
         this.executeCommandOptions = capabilities.getExecuteCommandProvider();
+
     }
 }
